@@ -1,11 +1,12 @@
 #!/bin/bash
+set -v
+RWD=../routes
 
-cd routes
-rm partners.js promotions.js
-cp campsites.js partners.js 
-cp campsites.js promotions.js
-sed -i 's|campsite|partner|g' partners.js
-sed -i 's|campsite|promotions|g' promotions.js
+rm $RWD/partners.js $RWD/promotions.js
+cp $RWD/campsites.js $RWD/partners.js 
+cp $RWD/campsites.js $RWD/promotions.js
+sed -i 's|campsite|partner|g' $RWD/partners.js
+sed -i 's|campsite|promotions|g' $RWD/promotions.js
 
-cd ..
+echo 'all done'
 
