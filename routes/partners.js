@@ -1,69 +1,98 @@
 const partnersRouter = require('express').Router();
+const Campsite = require('../models/partner');
 
 partnersRouter
 	.route('/')
-	.all((_, res, next) => {
-		res.statusCode = 200;
-		res.setHeader('Content-Type', 'text/plain');
-		next();
-	})
 
-	.get((_, res) => {
-		res.end(`
-			Will send all partners to you
-		`);
+	.get((req, res, next) => {
+		Campsite.find()
+			.then((partners) => {
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(partners);
+			})
+			.catch((err) => next(err));
 	})
 
 	.post((req, res) => {
-		res.end(`
-			Addi partner ${req.params.partnerId}
-			name: ${req.body.name}
-			description: ${req.body.description}
-		`);
+		Campsite.create(req.body)
+			.then((partner) => {
+				console.log('partner created', partner);
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(partner);
+			})
+			.catch((err) => next(err));
 	})
 
-	.put((_, res) => {
+	.put((req, res) => {
 		res.statusCode = 403;
 		res.end(`
 			PUT operation not supported on /partners
 		`);
 	})
 
-	.delete((_, res) => {
-		res.end(`
-			Deleting all partners
-		`);
+	.delete((req, res, next) => {
+		Campsite.deleteMany()
+			.then((response) => {
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(response);
+			})
+			.catch((err) => next(err));
 	});
 
 partnersRouter
 	.route('/:partnerId')
-	.get((req, res) => {
-		res.end(`
-			partner requested:
-			${req.params.partnerId}
-		`);
+	.get((req, res, next) => {
+		Campsite.findById(req.params.partnerId)
+			.then((partner) => {
+				console.log('partner updated', partner);
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(partner);
+			})
+			.catch((err) => next(err));
 	})
 
 	.post((req, res) => {
 		res.statusCode = 403;
 		res.end(`
-			POST operation not supported on ${req.body.name}
-		`);
+			POST operation not supported on ${req.params.partnerId}
+			`);
 	})
 
-	.put((req, res) => {
-		res.write(`
-			Updating partner: ${req.params.partnerId}
-		`);
-		res.end(`
-			with name: ${req.body.name}
-			with description: ${req.body.description}
-		`);
+	.put((req, res, next) => {
+		Campsite.findByIdAndUpdate(
+			req.params.partnerId,
+			{
+				$set: req.body,
+			},
+			{
+				new: true,
+			},
+		)
+			.then((partner) => {
+				console.log('partner updated', partner);
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(partner);
+			})
+			.catch((err) => next(err));
 	})
 
-	.delete((req, res) => {
-		res.end(`
-		Deleting partner: ${req.params.partnerId}`);
+	.delete((req, res, next) => {
+		Campsite.findByIdAndDelete(req.params.partnerId)
+			.then((response) => {
+				console.log(
+					`deleted partner ${req.params.partnerId}`,
+					response,
+				);
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(response);
+			})
+			.catch((err) => next(err));
 	});
 
 module.exports = partnersRouter;

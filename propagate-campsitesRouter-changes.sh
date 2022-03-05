@@ -1,6 +1,6 @@
 #!/bin/bash
 set -v
-RWD=../routes
+RWD=routes
 
 rm $RWD/partners.js $RWD/promotions.js
 cp $RWD/campsites.js $RWD/partners.js 
