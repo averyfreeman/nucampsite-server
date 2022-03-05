@@ -1,23 +1,12 @@
-const promotionssRouter = require('express').Router();
-const Campsite = require('../models/promotions');
+const promotionsRouter = require('express').Router();
+const Promotion = require('../models/promotion');
 
-promotionssRouter
+promotionsRouter
 	.route('/')
-
-	.get((req, res, next) => {
-		Campsite.find()
-			.then((promotionss) => {
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'application/json');
-				res.json(promotionss);
-			})
-			.catch((err) => next(err));
-	})
-
-	.post((req, res) => {
-		Campsite.create(req.body)
+	.get((_, res, next) => {
+		Promotion.find()
 			.then((promotions) => {
-				console.log('promotions created', promotions);
+				console.log('promotions retrieved');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(promotions);
@@ -25,16 +14,28 @@ promotionssRouter
 			.catch((err) => next(err));
 	})
 
-	.put((req, res) => {
+	.post((req, res, next) => {
+		Promotion.create(req.body)
+			.then((promotions) => {
+				console.log('promotions created');
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(promotions);
+			})
+			.catch((err) => next(err));
+	})
+
+	.put((_, res) => {
 		res.statusCode = 403;
-		res.end(`
-			PUT operation not supported on /promotionss
+		res.end(`r
+			PUT operation not supported on /promotions
 		`);
 	})
 
-	.delete((req, res, next) => {
-		Campsite.deleteMany()
+	.delete((_, res, next) => {
+		Promotion.deleteMany()
 			.then((response) => {
+				console.log('Promotions deleted');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(response);
@@ -42,15 +43,15 @@ promotionssRouter
 			.catch((err) => next(err));
 	});
 
-promotionssRouter
-	.route('/:promotionsId')
+promotionsRouter
+	.route('/:promotionId')
 	.get((req, res, next) => {
-		Campsite.findById(req.params.promotionsId)
-			.then((promotions) => {
-				console.log('promotions updated', promotions);
+		Promotion.findById(req.params.promotionId)
+			.then((promotion) => {
+				console.log('promotion retrieved');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
-				res.json(promotions);
+				res.json(promotion);
 			})
 			.catch((err) => next(err));
 	})
@@ -58,13 +59,13 @@ promotionssRouter
 	.post((req, res) => {
 		res.statusCode = 403;
 		res.end(`
-			POST operation not supported on ${req.params.promotionsId}
+			POST operation not supported on ${req.params.promotionId}
 			`);
 	})
 
 	.put((req, res, next) => {
-		Campsite.findByIdAndUpdate(
-			req.params.promotionsId,
+		Promotion.findByIdAndUpdate(
+			req.params.promotionId,
 			{
 				$set: req.body,
 			},
@@ -73,7 +74,7 @@ promotionssRouter
 			},
 		)
 			.then((promotions) => {
-				console.log('promotions updated', promotions);
+				console.log('promotion updated');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(promotions);
@@ -82,10 +83,10 @@ promotionssRouter
 	})
 
 	.delete((req, res, next) => {
-		Campsite.findByIdAndDelete(req.params.promotionsId)
+		Promotion.findByIdAndDelete(req.params.promotionId)
 			.then((response) => {
 				console.log(
-					`deleted promotions ${req.params.promotionsId}`,
+					`deleted promotion ${req.params.promotionId}`,
 					response,
 				);
 				res.statusCode = 200;
@@ -95,4 +96,4 @@ promotionssRouter
 			.catch((err) => next(err));
 	});
 
-module.exports = promotionssRouter;
+module.exports = promotionsRouter;

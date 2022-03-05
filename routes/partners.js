@@ -1,12 +1,12 @@
 const partnersRouter = require('express').Router();
-const Campsite = require('../models/partner');
+const Partner = require('../models/partner');
 
 partnersRouter
 	.route('/')
-
 	.get((req, res, next) => {
-		Campsite.find()
+		Partner.find()
 			.then((partners) => {
+				console.log('partners retrieved');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(partners);
@@ -14,10 +14,10 @@ partnersRouter
 			.catch((err) => next(err));
 	})
 
-	.post((req, res) => {
-		Campsite.create(req.body)
+	.post((req, res, next) => {
+		Partner.create(req.body)
 			.then((partner) => {
-				console.log('partner created', partner);
+				console.log('partner created');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(partner);
@@ -33,8 +33,9 @@ partnersRouter
 	})
 
 	.delete((req, res, next) => {
-		Campsite.deleteMany()
+		Partner.deleteMany()
 			.then((response) => {
+				console.log('Partners deleted');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(response);
@@ -45,9 +46,9 @@ partnersRouter
 partnersRouter
 	.route('/:partnerId')
 	.get((req, res, next) => {
-		Campsite.findById(req.params.partnerId)
+		Partner.findById(req.params.partnerId)
 			.then((partner) => {
-				console.log('partner updated', partner);
+				console.log('partner retrieved');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(partner);
@@ -56,14 +57,13 @@ partnersRouter
 	})
 
 	.post((req, res) => {
-		res.statusCode = 403;
-		res.end(`
+		res.status(403).end(`
 			POST operation not supported on ${req.params.partnerId}
 			`);
 	})
 
 	.put((req, res, next) => {
-		Campsite.findByIdAndUpdate(
+		Partner.findByIdAndUpdate(
 			req.params.partnerId,
 			{
 				$set: req.body,
@@ -73,7 +73,7 @@ partnersRouter
 			},
 		)
 			.then((partner) => {
-				console.log('partner updated', partner);
+				console.log('partner updated');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(partner);
@@ -82,7 +82,7 @@ partnersRouter
 	})
 
 	.delete((req, res, next) => {
-		Campsite.findByIdAndDelete(req.params.partnerId)
+		Partner.findByIdAndDelete(req.params.partnerId)
 			.then((response) => {
 				console.log(
 					`deleted partner ${req.params.partnerId}`,

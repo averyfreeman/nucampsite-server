@@ -1,17 +1,18 @@
 require('dotenv').config();
 const path = require('path');
 const express = require('express');
-const statusMonitor = require('express-status-monitor');
+// optional: add express-status-monitor
+// const statusMonitor = require('express-status-monitor');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const mongoose = require('mongoose');
-
-const { monitorConfig } = require('./monitorConfig');
+// for express-status-monitor
+// const { monitorConfig } = require('./monitorConfig');
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const campsitesRouter = require('./routes/campsites');
-// const partnersRouter = require('./routes/partners');
-// const promotionsRouter = require('./routes/promotions');
+const partnersRouter = require('./routes/partners');
+const promotionsRouter = require('./routes/promotions');
 
 const dbServerName = process.env.DB_SERVER_NAME || 'bionicmongo';
 const dbServerPort = process.env.DB_SERVER_PORT || '27017';
@@ -32,13 +33,14 @@ connect.then(
 		console.log(`
 	Connected to ${dbName} db on ${dbServerName} server via local network:
 	${url} - everything looks OK
-		`),
+	`),
 	(err) => console.error(err),
 );
 
 const app = express();
 
-app.use(statusMonitor(monitorConfig));
+// for express-status-monitor
+// app.use(statusMonitor(monitorConfig));
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -49,8 +51,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/campsites', campsitesRouter);
-// app.use('/partners', partnersRouter);
-// app.use('/promotions', promotionsRouter);
+app.use('/partners', partnersRouter);
+app.use('/promotions', promotionsRouter);
 
 app.use((_, res) => {
 	res.statusCode = 200;
