@@ -1,4 +1,4 @@
-exports.monitorConfig = {
+exports.config = {
 	title: 'REST server for mongodb',
 	spans: [
 		{
