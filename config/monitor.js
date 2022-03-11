@@ -2,15 +2,11 @@ exports.config = {
 	title: 'REST server for mongodb',
 	spans: [
 		{
-			interval: 1,
+			interval: 2,
 			retention: 60,
 		},
 		{
-			interval: 5,
-			retention: 60,
-		},
-		{
-			interval: 15,
+			interval: 30,
 			retention: 60,
 		},
 	],
