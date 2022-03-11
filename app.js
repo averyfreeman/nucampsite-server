@@ -1,12 +1,17 @@
 require('dotenv').config();
 const path = require('path');
+const util = (require('util').inspect.defaultOptions.depth = null);
 const express = require('express');
 const logger = require('morgan');
-const statusMonitor = require('express-status-monitor');
-const cookieParser = require('cookie-parser');
+const monitor = require('express-status-monitor');
+const createError = require('http-errors');
+// util.inspect.defaultOptions.depth = null;
+// const cookieParser = require('cookie-parser'); // still req. ?
+const session = require('express-session');
+const FileStore = require('session-file-store')(session);
 /*  local modules   */
-const { config } = require('./config/monitor');
 const { auth } = require('./util/auth');
+const { config } = require('./config/monitor');
 /*      routes      */
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -25,11 +30,22 @@ app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
 /*    middlewares    */
-app.use(statusMonitor(config));
+app.use(monitor(config));
+// app.use(monitor(config));
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(cookieParser('9359c7d2-b3e7-4075-9272-379a8c3ca927'));
+// do not use cookieParser, but if same secret might work LOL
+// app.use(cookieParser('12345-67890-ABCDE-FGHIJ'));
+app.use(
+	session({
+		name: 'session-id',
+		secret: '12345-67890-ABCDE-FGHIJ',
+		saveUninitialized: true, // req true to save session-id
+		resave: false,
+		store: new FileStore(),
+	}),
+);
 
 app.use(auth);
 
@@ -43,18 +59,19 @@ app.use('/partners', partnersRouter);
 app.use('/promotions', promotionsRouter);
 
 // 404 handler: vanilla express-gen if !== --no-view
-app
-	.use((_, req, next) => {
-		next(createError(404));
-	})
-	.use((err, req, res) => {
-		// set locals, only providing error in development
-		res.locals.message = err.message;
-		res.locals.error = req.app.get('env') === 'development' ? err : {};
+app.use((res, req, next) => {
+	return next().catch(createError(404));
+});
 
-		// render the error page
-		res.status(err.status || 500);
-		res.render('error');
-	});
+app.use((err, req, res) => {
+	// set locals, only providing error in development
+	res.locals.message = err.message;
+	res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+	// render the error page
+	res.status(err.status || 500);
+	x;
+	res.render('error');
+});
 
 module.exports = app;

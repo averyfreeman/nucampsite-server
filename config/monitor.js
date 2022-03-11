@@ -1,8 +1,13 @@
 exports.config = {
-	title: 'REST server for mongodb',
+	title: 'endpoints for mongodb',
+	webSocket: '/socket.io',
 	spans: [
 		{
 			interval: 2,
+			retention: 60,
+		},
+		{
+			interval: 10,
 			retention: 60,
 		},
 		{

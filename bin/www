@@ -7,20 +7,33 @@
 var app = require('../app');
 var debug = require('debug')('nucampsiteserver:server');
 var http = require('http');
+var port = normalizePort(process.env.PORT || '3000');
+app.set('port', port);
+var server = http.createServer(app);
+var io = require('socket.io-client')(server);
+var socket =
+	(`http://localhost:${port}`,
+	{
+		reconnectionDelay: 1000,
+		reconnection: true,
+		reconnectionAttemps: 10,
+		transports: ['websocket'],
+		agent: false,
+		upgrade: false,
+		rejectUnauthorized: false,
+	});
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
-app.set('port', port);
-
 /**
- * Create HTTP server.
+ * Create HTTP server. -- moved up to imports (before io)
  */
 
-var server = http.createServer(app);
 // console.dir(http);
+// console.log(server);
+
 /**
  * Listen on provided port, on all network interfaces.
  */
@@ -81,7 +94,7 @@ function onError(error) {
 
 function onListening() {
 	var addr = server.address();
-	var bind =
-		typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
+	var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
 	debug('Listening on ' + bind);
+	// io.on('connection', function (socket) {});
 }

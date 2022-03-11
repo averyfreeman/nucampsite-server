@@ -1,5 +1,6 @@
 /*     mongodb      */
 const mongoose = require('mongoose');
+const { chalkChecks } = require('../config/logColors');
 const dbServerName = process.env.DB_SERVER_NAME || 'bionicmongo';
 const dbServerPort = process.env.DB_SERVER_PORT || '27017';
 const dbServerProtocol = process.env.DB_SERVER_PROTO || 'mongodb';
@@ -16,12 +17,15 @@ const connect = mongoose.connect(url, {
 
 connect.then(
 	() =>
-		console.log(`
-
-	Connected to ${dbName} db on ${dbServerName} server via local network:
-	${url} 
-	visit http://localhost:3000/status for server monitor portal
-	`),
+		chalkChecks(
+			console.log,
+			`Connected to`,
+			`${dbName} db on ${dbServerName}`,
+			`mongodb url`,
+			`${url}`,
+			`statistics`,
+			`http://localhost:3000/status`,
+		),
 	(err) => console.error(err),
 );
 /*    end mongodb    */

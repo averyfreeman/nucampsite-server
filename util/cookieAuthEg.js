@@ -1,6 +1,6 @@
-exports.auth = (req, res, next) => {
-	console.log('req.session: ', req.session);
-	if (!req.session.user) {
+// deprecated: simple cookies.  Kept as an example for now.
+exports.oldCookieAuth = (req, res, next) => {
+	if (!req.signedCookies.user) {
 		const authHeader = req.headers.authorization;
 		if (!authHeader) {
 			const err = new Error('You are not authenticated');
@@ -14,8 +14,7 @@ exports.auth = (req, res, next) => {
 		const user = auth[0];
 		const pass = auth[1];
 		if (user === 'admin' && pass === 'password') {
-			req.session.user === 'admin';
-
+			res.cookie('user', 'admin', { signed: true });
 			return next(); // authorized
 		} else {
 			const err = new Error('You are not authenticated');
@@ -23,7 +22,7 @@ exports.auth = (req, res, next) => {
 			err.status = 401;
 			return next(err);
 		}
-	} else if (req.session.user === 'admin') {
+	} else if (req.signedCookies.user === 'admin') {
 		return next();
 	} else {
 		const err = new Error('You are not authenticated');
