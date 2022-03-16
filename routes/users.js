@@ -5,19 +5,21 @@ const authenticate = require('../authenticate.js');
 
 /* GET users listing. */
 usersRouter.get('/', (_, res, next) => {
-	User.find()
-		.then((users) => {
-			console.log('users list retrieved');
-			res.statusCode = 200;
-			res.setHeader('Content-Type', 'application/json');
-			res.json(users);
-		})
-		.catch((err) => next(err));
+	authenticate.verifyUser,
+		authenticate.verifyAdmin,
+		User.find()
+			.then((users) => {
+				console.log('users list retrieved');
+				res.statusCode = 200;
+				res.setHeader('Content-Type', 'application/json');
+				res.json(users);
+			})
+			.catch((err) => next(err));
 });
 
 usersRouter.post(
 	'/signup',
-	authenticate.verifyUser,
+	// authenticate.verifyUser,
 	// authenticate.verifyAdmin,
 	(req, res) => {
 		// if (req.user) {
@@ -123,9 +125,8 @@ usersRouter
 	)
 	// PUT for user modification not working yet
 	.put(
-		// stay vertical
-		// authenticate.verifyUser,
-		// authenticate.verifyAdmin,
+		authenticate.verifyUser,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			user
 				.findByIdAndUpdate(
@@ -147,14 +148,16 @@ usersRouter
 		},
 	)
 	.delete((req, res, next) => {
-		User.findByIdAndDelete(req.params.userId)
-			.then((response) => {
-				console.log(`deleted user ${req.params.userId}`, response);
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'application/json');
-				res.json(response);
-			})
-			.catch((err) => next(err));
+		authenticate.verifyUser,
+			authenticate.verifyAdmin,
+			User.findByIdAndDelete(req.params.userId)
+				.then((response) => {
+					console.log(`deleted user ${req.params.userId}`, response);
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(response);
+				})
+				.catch((err) => next(err));
 	});
 
 module.exports = usersRouter;

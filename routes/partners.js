@@ -17,7 +17,7 @@ partnersRouter
 
 	.post(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.create(req.body)
 				.then((partner) => {
@@ -43,7 +43,7 @@ partnersRouter
 
 	.delete(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.deleteMany()
 				.then((response) => {
@@ -81,7 +81,7 @@ partnersRouter
 
 	.put(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.findByIdAndUpdate(
 				req.params.partnerId,
@@ -104,11 +104,14 @@ partnersRouter
 
 	.delete(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.findByIdAndDelete(req.params.partnerId)
 				.then((response) => {
-					console.log(`deleted partner ${req.params.partnerId}`, response);
+					console.log(
+						`deleted partner ${req.params.partnerId}`,
+						response,
+					);
 					res.statusCode = 200;
 					res.setHeader('Content-Type', 'application/json');
 					res.json(response);

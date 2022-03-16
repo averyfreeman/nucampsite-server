@@ -17,7 +17,7 @@ promotionsRouter
 
 	.post(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Promotion.create(req.body)
 				.then((promotions) => {
@@ -43,7 +43,7 @@ promotionsRouter
 
 	.delete(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(_, res, next) => {
 			Promotion.deleteMany()
 				.then((response) => {
@@ -82,7 +82,7 @@ promotionsRouter
 
 	.put(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Promotion.findByIdAndUpdate(
 				req.params.promotionId,
@@ -105,11 +105,14 @@ promotionsRouter
 
 	.delete(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Promotion.findByIdAndDelete(req.params.promotionId)
 				.then((response) => {
-					console.log(`deleted promotion ${req.params.promotionId}`, response);
+					console.log(
+						`deleted promotion ${req.params.promotionId}`,
+						response,
+					);
 					res.statusCode = 200;
 					res.setHeader('Content-Type', 'application/json');
 					res.json(response);
