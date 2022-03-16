@@ -1,8 +1,9 @@
-const indexRouter = require('express').Router();
+var express = require('express');
+var router = express.Router();
 
 /* GET home page. */
-indexRouter.get('/', (_, res) => {
-	return res.render('index', { title: 'R E S T' });
+router.get('/', function (req, res, next) {
+	res.render('index', { title: 'nucampsite' });
 });
 
-module.exports = indexRouter;
+module.exports = router;

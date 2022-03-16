@@ -2,33 +2,6 @@ const usersRouter = require('express').Router();
 const User = require('../models/user');
 const passport = require('passport');
 const authenticate = require('../authenticate.js');
-console.dir(authenticate);
-// const {
-// 	getToken,
-// 	jwtPassport,
-// 	verifyUser,
-// 	verifyAdmin,
-// }
-
-// make sure this object of functions importing properly
-// console.log(
-// 	`
-// getToken:
-// `	,
-// 	getToken,
-// 	`
-// jwtPassport:
-// `	,
-// 	jwtPassport,
-// 	`
-// verifyUser:
-// `	,
-// 	verifyUser,
-// 	`
-// verifyAdmin:
-// `	,
-// 	verifyAdmin,
-// );
 
 /* GET users listing. */
 usersRouter.get('/', (_, res, next) => {
@@ -44,7 +17,7 @@ usersRouter.get('/', (_, res, next) => {
 
 usersRouter.post(
 	'/signup',
-	// authenticate.verifyUser,
+	authenticate.verifyUser,
 	// authenticate.verifyAdmin,
 	(req, res) => {
 		// if (req.user) {
@@ -92,17 +65,21 @@ usersRouter.post(
 	},
 );
 
-usersRouter.post('/login', passport.authenticate('local'), (req, res) => {
-	const token = authenticate.getToken({ _id: req.user._id });
-	res.statusCode = 200;
-	res.setHeader('Content-Type', 'application/json');
-	res.json({
-		success: true,
-		token: token,
-		// token, // es6 rules apply to res.json()?
-		status: `You are logged in`,
-	});
-});
+usersRouter.post(
+	'/login',
+	passport.authenticate('local'),
+	(req, res) => {
+		const token = authenticate.getToken({ _id: req.user._id });
+		res.statusCode = 200;
+		res.setHeader('Content-Type', 'application/json');
+		res.json({
+			success: true,
+			token: token,
+			// token, // es6 rules apply to res.json()?
+			status: `You are logged in`,
+		});
+	},
+);
 
 usersRouter.get('/logout', (req, res, next) => {
 	console.log(req.session);

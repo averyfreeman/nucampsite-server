@@ -1,13 +1,6 @@
 const campsitesRouter = require('express').Router();
 const Campsite = require('../models/campsite');
 const authenticate = require('../authenticate.js');
-// const passport = require('passport');
-// const {
-// 	// 	getToken,
-// 	// 	jwtPassport,
-// 	verifyUser,
-// 	// 	verifyAdmin,
-// }
 
 campsitesRouter
 	.route('/')
@@ -38,12 +31,16 @@ campsitesRouter
 		},
 	)
 
-	.put((_, res) => {
-		res.statusCode = 403;
-		res.end(`
+	.put(
+		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
+		(_, res) => {
+			res.statusCode = 403;
+			res.end(`
 			PUT operation not supported on /campsites
 		`);
-	});
+		},
+	);
 
 campsitesRouter
 	.route('/:campsiteId')
@@ -59,12 +56,16 @@ campsitesRouter
 			.catch((err) => next(err));
 	})
 
-	.post((_, res) => {
-		res.statusCode = 403;
-		res.end(`
+	.post(
+		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
+		(_, res) => {
+			res.statusCode = 403;
+			res.end(`
 			POST operation not supported on specific campsite listings. Did you mean comments?
 			`);
-	})
+		},
+	)
 	// Schema for Campsite needs to be set so comment author is validated and person who created comment is only person who can alter it
 	// syntax:
 	// if ((campsite.comments.id(req.params.commentId === _id).equals(req.user._id)))
@@ -95,8 +96,8 @@ campsitesRouter
 	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
 		(req, res, next) => {
 			Campsite.findByIdAndDelete(req.params.campsiteId)
 				.then((response) => {
@@ -131,8 +132,8 @@ campsitesRouter
 	})
 
 	.post(
-		// stay vertical
 		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
 		(req, res, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {
@@ -159,16 +160,20 @@ campsitesRouter
 		},
 	)
 
-	.put((req, res) => {
-		res.statusCode = 403;
-		res.end(`
+	.put(
+		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
+		(req, res) => {
+			res.statusCode = 403;
+			res.end(`
 			PUT operation not supported on /campsites/${req.params.campsiteId}/comments
 		`);
-	})
+		},
+	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
 		(req, _, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {
@@ -215,16 +220,20 @@ campsitesRouter
 			.catch((err) => next(err));
 	})
 
-	.post((req, res) => {
-		res.statusCode = 403;
-		res.end(
-			`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`,
-		);
-	})
+	.post(
+		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
+		(req, res) => {
+			res.statusCode = 403;
+			res.end(
+				`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`,
+			);
+		},
+	)
 
 	.put(
-		// stay vertical
 		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
 		(req, res, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {
@@ -263,8 +272,8 @@ campsitesRouter
 	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
+		// authenticate.verifyAdmin,
 		(req, res, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {

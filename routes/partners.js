@@ -16,7 +16,6 @@ partnersRouter
 	})
 
 	.post(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {
@@ -32,7 +31,6 @@ partnersRouter
 	)
 
 	.put(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res) => {
@@ -44,7 +42,6 @@ partnersRouter
 	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {
@@ -72,14 +69,17 @@ partnersRouter
 			.catch((err) => next(err));
 	})
 
-	.post((req, res) => {
-		res.status(403).end(`
+	.post(
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(req, res) => {
+			res.status(403).end(`
 			POST operation not supported on ${req.params.partnerId}
 			`);
-	})
+		},
+	)
 
 	.put(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {
@@ -103,7 +103,6 @@ partnersRouter
 	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {

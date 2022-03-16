@@ -16,7 +16,6 @@ promotionsRouter
 	})
 
 	.post(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {
@@ -31,15 +30,18 @@ promotionsRouter
 		},
 	)
 
-	.put((_, res) => {
-		res.statusCode = 403;
-		res.end(`r
+	.put(
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(_, res) => {
+			res.statusCode = 403;
+			res.end(`r
 			PUT operation not supported on /promotions
 		`);
-	})
+		},
+	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(_, res, next) => {
@@ -67,15 +69,18 @@ promotionsRouter
 			.catch((err) => next(err));
 	})
 
-	.post((req, res) => {
-		res.statusCode = 403;
-		res.end(`
+	.post(
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(req, res) => {
+			res.statusCode = 403;
+			res.end(`
 			POST operation not supported on ${req.params.promotionId}
 			`);
-	})
+		},
+	)
 
 	.put(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {
@@ -99,7 +104,6 @@ promotionsRouter
 	)
 
 	.delete(
-		// stay vertical
 		authenticate.verifyUser,
 		// verifyAdmin,
 		(req, res, next) => {
