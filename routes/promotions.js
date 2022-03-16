@@ -1,5 +1,6 @@
 const promotionsRouter = require('express').Router();
 const Promotion = require('../models/promotion');
+const authenticate = require('../authenticate.js');
 
 promotionsRouter
 	.route('/')
@@ -14,16 +15,21 @@ promotionsRouter
 			.catch((err) => next(err));
 	})
 
-	.post((req, res, next) => {
-		Promotion.create(req.body)
-			.then((promotions) => {
-				console.log('promotions created');
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'application/json');
-				res.json(promotions);
-			})
-			.catch((err) => next(err));
-	})
+	.post(
+		// stay vertical
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(req, res, next) => {
+			Promotion.create(req.body)
+				.then((promotions) => {
+					console.log('promotions created');
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(promotions);
+				})
+				.catch((err) => next(err));
+		},
+	)
 
 	.put((_, res) => {
 		res.statusCode = 403;
@@ -32,16 +38,21 @@ promotionsRouter
 		`);
 	})
 
-	.delete((_, res, next) => {
-		Promotion.deleteMany()
-			.then((response) => {
-				console.log('Promotions deleted');
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'application/json');
-				res.json(response);
-			})
-			.catch((err) => next(err));
-	});
+	.delete(
+		// stay vertical
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(_, res, next) => {
+			Promotion.deleteMany()
+				.then((response) => {
+					console.log('Promotions deleted');
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(response);
+				})
+				.catch((err) => next(err));
+		},
+	);
 
 promotionsRouter
 	.route('/:promotionId')
@@ -63,37 +74,44 @@ promotionsRouter
 			`);
 	})
 
-	.put((req, res, next) => {
-		Promotion.findByIdAndUpdate(
-			req.params.promotionId,
-			{
-				$set: req.body,
-			},
-			{
-				new: true,
-			},
-		)
-			.then((promotions) => {
-				console.log('promotion updated');
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'application/json');
-				res.json(promotions);
-			})
-			.catch((err) => next(err));
-	})
+	.put(
+		// stay vertical
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(req, res, next) => {
+			Promotion.findByIdAndUpdate(
+				req.params.promotionId,
+				{
+					$set: req.body,
+				},
+				{
+					new: true,
+				},
+			)
+				.then((promotions) => {
+					console.log('promotion updated');
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(promotions);
+				})
+				.catch((err) => next(err));
+		},
+	)
 
-	.delete((req, res, next) => {
-		Promotion.findByIdAndDelete(req.params.promotionId)
-			.then((response) => {
-				console.log(
-					`deleted promotion ${req.params.promotionId}`,
-					response,
-				);
-				res.statusCode = 200;
-				res.setHeader('Content-Type', 'application/json');
-				res.json(response);
-			})
-			.catch((err) => next(err));
-	});
+	.delete(
+		// stay vertical
+		authenticate.verifyUser,
+		// verifyAdmin,
+		(req, res, next) => {
+			Promotion.findByIdAndDelete(req.params.promotionId)
+				.then((response) => {
+					console.log(`deleted promotion ${req.params.promotionId}`, response);
+					res.statusCode = 200;
+					res.setHeader('Content-Type', 'application/json');
+					res.json(response);
+				})
+				.catch((err) => next(err));
+		},
+	);
 
 module.exports = promotionsRouter;
