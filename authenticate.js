@@ -34,7 +34,11 @@ exports.jwtPassport = passport.use(
 	}),
 );
 
-exports.verifyUser = passport.authenticate(jwt, { session: false });
+// note: passport.authenticate() first argument should be a string
+// passport-local docs: https://www.npmjs.com/package/passport-local
+exports.verifyUser = passport.authenticate(jwt.toString(), {
+	session: false,
+});
 exports.verifyAdmin = (req, res, next) => {
 	if (req.user.admin) {
 		console.log('user admin logged in');

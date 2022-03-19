@@ -19,7 +19,7 @@ campsitesRouter
 	.post(
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
-		(req, res) => {
+		(req, res, next) => {
 			Campsite.create(req.body)
 				.then((campsite) => {
 					console.log('campsite created', campsite);
@@ -34,7 +34,7 @@ campsitesRouter
 	.put(
 		authenticate.verifyUser,
 		// authenticate.verifyAdmin,
-		(_, res) => {
+		(_, res, next) => {
 			res.statusCode = 403;
 			res.end(`
 			PUT operation not supported on /campsites
@@ -77,7 +77,7 @@ campsitesRouter
 	.post(
 		authenticate.verifyUser,
 		// authenticate.verifyAdmin,
-		(_, res) => {
+		(_, res, next) => {
 			res.statusCode = 403;
 			res.end(`
 			POST operation not supported on specific campsite listings. Did you mean comments?
@@ -185,7 +185,7 @@ campsitesRouter
 	.put(
 		authenticate.verifyUser,
 		// authenticate.verifyAdmin,
-		(req, res) => {
+		(req, res, next) => {
 			res.statusCode = 403;
 			res.end(`
 			PUT operation not supported on /campsites/${req.params.campsiteId}/comments
@@ -246,7 +246,7 @@ campsitesRouter
 	.post(
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
-		(req, res) => {
+		(req, res, next) => {
 			res.statusCode = 403;
 			res.end(
 				`POST operation not supported on /campsites/${req.params.campsiteId}/comments/${req.params.commentId}`,
@@ -254,29 +254,41 @@ campsitesRouter
 		},
 	)
 
+	// subdocument methods: https://mongoosejs.com/docs/subdocs.html
+	// e.g. campsite.comments.id()
 	.put(
 		authenticate.verifyUser,
-		authenticate.verifyAdmin,
+		// authenticate.verifyAdmin,
 		(req, res, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {
 					if (campsite && campsite.comments.id(req.params.commentId)) {
-						if (req.body.rating) {
-							campsite.comments.id(req.params.commentId).rating =
-								req.body.rating;
+						if (
+							campsite.comments
+								.id(req.params.commentId)
+								.author._id.equals(req.user._id)
+						) {
+							if (req.body.rating) {
+								campsite.comments.id(req.params.commentId).rating =
+									req.body.rating;
+							}
+							if (req.body.text) {
+								campsite.comments.id(req.params.commentId).text =
+									req.body.text;
+							}
+							campsite
+								.save()
+								.then((campsite) => {
+									res.statusCode = 200;
+									res.setHeader('Content-Type', 'application/json');
+									res.json(campsite);
+								})
+								.catch((err) => next(err));
+						} else {
+							const err = new Error('not your comment').status(403);
+							console.error(err);
+							return next(err);
 						}
-						if (req.body.text) {
-							campsite.comments.id(req.params.commentId).text =
-								req.body.text;
-						}
-						campsite
-							.save()
-							.then((campsite) => {
-								res.statusCode = 200;
-								res.setHeader('Content-Type', 'application/json');
-								res.json(campsite);
-							})
-							.catch((err) => next(err));
 					} else if (!campsite) {
 						err = new Error(`
 						Campsite ${req.params.campsiteId} not found
@@ -297,20 +309,30 @@ campsitesRouter
 
 	.delete(
 		authenticate.verifyUser,
-		authenticate.verifyAdmin,
+		// authenticate.verifyAdmin,
 		(req, res, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {
 					if (campsite && campsite.comments.id(req.params.commentId)) {
-						campsite.comments.id(req.params.commentId).remove();
-						campsite
-							.save()
-							.then((campsite) => {
-								res.statusCode = 200;
-								res.setHeader('Content-Type', 'application/json');
-								res.json(campsite);
-							})
-							.catch((err) => next(err));
+						if (
+							campsite.comments
+								.id(req.params.commentId)
+								.author._id.equals(req.user._id)
+						) {
+							campsite.comments.id(req.params.commentId).remove();
+							campsite
+								.save()
+								.then((campsite) => {
+									res.statusCode = 200;
+									res.setHeader('Content-Type', 'application/json');
+									res.json(campsite);
+								})
+								.catch((err) => next(err));
+						} else {
+							const err = new Error('not your comment').status(403);
+							console.error(err);
+							return next(err);
+						}
 					} else if (!campsite) {
 						err = new Error(`
 					Campsite ${req.params.campsiteId} not found
