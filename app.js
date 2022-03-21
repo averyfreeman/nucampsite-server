@@ -8,9 +8,9 @@ const config = require('./config.js');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
-const campsitesRouter = require('./routes/campsites');
-const partnersRouter = require('./routes/partners');
-const promotionsRouter = require('./routes/promotions');
+const campsiteRouter = require('./routes/campsites');
+const partnerRouter = require('./routes/partners');
+const promotionRouter = require('./routes/promotions');
 
 const url = config.mongoUrl;
 const db = mongoose.connect(url, {
@@ -40,9 +40,9 @@ app.use('/users', usersRouter);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/campsites', campsitesRouter);
-app.use('/promotions', promotionsRouter);
-app.use('/partners', partnersRouter);
+app.use('/campsites', campsiteRouter);
+app.use('/promotions', promotionRouter);
+app.use('/partners', partnerRouter);
 
 app.use((req, res, next) => {
 	res.statusCode = 404;

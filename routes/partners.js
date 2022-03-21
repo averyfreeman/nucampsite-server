@@ -1,8 +1,8 @@
-const partnersRouter = require('express').Router();
+const partnerRouter = require('express').Router();
 const Partner = require('../models/partner');
 const authenticate = require('../authenticate.js');
 
-partnersRouter
+partnerRouter
 	.route('/')
 	.get((req, res, next) => {
 		Partner.find()
@@ -32,7 +32,7 @@ partnersRouter
 
 	.put(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res) => {
 			res.statusCode = 403;
 			res.end(`
@@ -56,7 +56,7 @@ partnersRouter
 		},
 	);
 
-partnersRouter
+partnerRouter
 	.route('/:partnerId')
 	.get((req, res, next) => {
 		Partner.findById(req.params.partnerId)
@@ -71,7 +71,7 @@ partnersRouter
 
 	.post(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res) => {
 			res.status(403).end(`
 			POST operation not supported on ${req.params.partnerId}
@@ -120,4 +120,4 @@ partnersRouter
 		},
 	);
 
-module.exports = partnersRouter;
+module.exports = partnerRouter;

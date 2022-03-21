@@ -1,10 +1,10 @@
-const campsitesRouter = require('express').Router();
+const campsiteRouter = require('express').Router();
 const Campsite = require('../models/campsite');
 const authenticate = require('../authenticate.js');
 
-campsitesRouter
+campsiteRouter
 	.route('/')
-	.get((_, res, next) => {
+	.get((req, res, next) => {
 		Campsite.find()
 			.populate('comments.author')
 			.then((campsites) => {
@@ -33,8 +33,9 @@ campsitesRouter
 
 	.put(
 		authenticate.verifyUser,
-		// authenticate.verifyAdmin,
-		(_, res, next) => {
+		authenticate.verifyAdmin, // admin should be required
+		(req, res, next) => {
+			//  to even attempt this IMO
 			res.statusCode = 403;
 			res.end(`
 			PUT operation not supported on /campsites
@@ -57,7 +58,7 @@ campsitesRouter
 		},
 	);
 
-campsitesRouter
+campsiteRouter
 	.route('/:campsiteId')
 	.get((req, res, next) => {
 		Campsite.findById(req.params.campsiteId)
@@ -77,7 +78,7 @@ campsitesRouter
 	.post(
 		authenticate.verifyUser,
 		// authenticate.verifyAdmin,
-		(_, res, next) => {
+		(req, res, next) => {
 			res.statusCode = 403;
 			res.end(`
 			POST operation not supported on specific campsite listings. Did you mean comments?
@@ -126,7 +127,7 @@ campsitesRouter
 		},
 	);
 
-campsitesRouter
+campsiteRouter
 	.route('/:campsiteId/comments')
 	.get((req, res, next) => {
 		Campsite.findById(req.params.campsiteId)
@@ -197,7 +198,7 @@ campsitesRouter
 	.delete(
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
-		(req, _, next) => {
+		(req, res, next) => {
 			Campsite.findById(req.params.campsiteId)
 				.then((campsite) => {
 					if (campsite) {
@@ -216,7 +217,7 @@ campsitesRouter
 		},
 	);
 
-campsitesRouter
+campsiteRouter
 	.route('/:campsiteId/comments/:commentId')
 	.get((req, res, next) => {
 		Campsite.findById(req.params.campsiteId)
@@ -351,4 +352,4 @@ campsitesRouter
 		},
 	);
 
-module.exports = campsitesRouter;
+module.exports = campsiteRouter;

@@ -36,7 +36,7 @@ exports.jwtPassport = passport.use(
 
 // note: passport.authenticate() first argument should be a string
 // passport-local docs: https://www.npmjs.com/package/passport-local
-exports.verifyUser = passport.authenticate(jwt.toString(), {
+exports.verifyUser = passport.authenticate('jwt', {
 	session: false,
 });
 exports.verifyAdmin = (req, res, next) => {
@@ -49,6 +49,6 @@ exports.verifyAdmin = (req, res, next) => {
 		);
 		res.status = 403;
 		return next(err);
-		// passport.authenticate(jwt, { session: false });
+		// passport.authenticate('jwt', { session: false });
 	}
 };

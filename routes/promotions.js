@@ -1,8 +1,8 @@
-const promotionsRouter = require('express').Router();
+const promotionRouter = require('express').Router();
 const Promotion = require('../models/promotion');
 const authenticate = require('../authenticate.js');
 
-promotionsRouter
+promotionRouter
 	.route('/')
 	.get((_, res, next) => {
 		Promotion.find()
@@ -30,16 +30,12 @@ promotionsRouter
 		},
 	)
 
-	.put(
-		authenticate.verifyUser,
-		// verifyAdmin,
-		(_, res) => {
-			res.statusCode = 403;
-			res.end(`r
+	.put(authenticate.verifyUser, authenticate.verifyAdmin, (_, res) => {
+		res.statusCode = 403;
+		res.end(`r
 			PUT operation not supported on /promotions
 		`);
-		},
-	)
+	})
 
 	.delete(
 		authenticate.verifyUser,
@@ -56,7 +52,7 @@ promotionsRouter
 		},
 	);
 
-promotionsRouter
+promotionRouter
 	.route('/:promotionId')
 	.get((req, res, next) => {
 		Promotion.findById(req.params.promotionId)
@@ -71,7 +67,7 @@ promotionsRouter
 
 	.post(
 		authenticate.verifyUser,
-		// verifyAdmin,
+		authenticate.verifyAdmin,
 		(req, res) => {
 			res.statusCode = 403;
 			res.end(`
@@ -121,4 +117,4 @@ promotionsRouter
 		},
 	);
 
-module.exports = promotionsRouter;
+module.exports = promotionRouter;
