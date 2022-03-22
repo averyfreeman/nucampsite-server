@@ -1,38 +1,59 @@
-const path = require('path');
-const createError = require('http-errors');
-const express = require('express');
-const logger = require('morgan');
+var createError = require('http-errors');
+var express = require('express');
+var path = require('path');
+var logger = require('morgan');
 const passport = require('passport');
+const config = require('./config');
+
+var indexRouter = require('./routes/index');
+var usersRouter = require('./routes/users');
+
+const campsiteRouter = require('./routes/campsiteRouter');
+const promotionRouter = require('./routes/promotionRouter');
+const partnerRouter = require('./routes/partnerRouter');
+const uploadRouter = require('./routes/uploadRouter');
+const favoriteRouter = require('./hidden/favoriteRouter');
+
 const mongoose = require('mongoose');
-const config = require('./config.js');
 
-const indexRouter = require('./routes/index');
-const usersRouter = require('./routes/users');
-const campsiteRouter = require('./routes/campsites');
-const partnerRouter = require('./routes/partners');
-const promotionRouter = require('./routes/promotions');
-
-const url = config.mongoUrl;
-const db = mongoose.connect(url, {
+const url = config.containerMongoUrl;
+const connect = mongoose.connect(url, {
 	useCreateIndex: true,
-	useFindAndModify: true,
+	useFindAndModify: false,
 	useNewUrlParser: true,
 	useUnifiedTopology: true,
 });
 
-db.then(
-	() => console.info(`connected to: ${url}`),
-	(err) => console.error(err),
+connect.then(
+	() => console.log('Connect four! You sunk my battleship...'),
+	(err) => console.log(err),
 );
 
-const app = express();
+var app = express();
 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.all('*', (req, res, next) => {
+	if (req.secure) {
+		return next();
+	} else {
+		console.log(
+			`Redirecting to: https://${req.hostname}:${app.get('secPort')}${
+				req.url
+			}`,
+		);
+		res.redirect(
+			301,
+			`https://${req.hostname}:${app.get('secPort')}${req.url}`,
+		);
+	}
+});
+
+app.set('views', path.join(__dirname, 'views')); // view garbage
+app.set('view engine', 'pug');
 
 app.use(logger('combined'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
+
 app.use(passport.initialize());
 
 app.use('/', indexRouter);
@@ -43,20 +64,19 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/campsites', campsiteRouter);
 app.use('/promotions', promotionRouter);
 app.use('/partners', partnerRouter);
+app.use('/imageUpload', uploadRouter);
+app.use('/favorites', favoriteRouter);
 
-app.use((req, res, next) => {
-	res.statusCode = 404;
-	res.setHeader('Content-Type', 'application/json');
-	const err = new Error('misplaced sausage', 404);
-	return next(err);
+app.use(function (req, res, next) {
+	next(createError(404));
 });
 
-function errorHandler(err, req, res, next) {
-	if (res.headersSent) {
-		return next(err);
-	}
-	res.status(500);
-	res.render('error', { error: err });
-}
+app.use(function (err, req, res, next) {
+	res.locals.message = err.message;
+	res.locals.error = req.app.get('env') === 'development' ? err : {};
+
+	res.status = err.status || 500;
+	res.render('error');
+});
 
 module.exports = app;

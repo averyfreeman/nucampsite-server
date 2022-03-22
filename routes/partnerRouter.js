@@ -1,27 +1,29 @@
 const partnerRouter = require('express').Router();
+const authenticate = require('../authenticate');
+const cors = require('./cors');
+
 const Partner = require('../models/partner');
-const authenticate = require('../authenticate.js');
 
 partnerRouter
 	.route('/')
-	.get((req, res, next) => {
+	.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+	.get(cors.cors, (req, res, next) => {
 		Partner.find()
 			.then((partners) => {
-				console.log('partners retrieved');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(partners);
 			})
 			.catch((err) => next(err));
 	})
-
 	.post(
+		cors.corsWithOptions,
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.create(req.body)
 				.then((partner) => {
-					console.log('partner created');
+					console.log('Partner Created ', partner);
 					res.statusCode = 200;
 					res.setHeader('Content-Type', 'application/json');
 					res.json(partner);
@@ -29,25 +31,23 @@ partnerRouter
 				.catch((err) => next(err));
 		},
 	)
-
 	.put(
+		cors.corsWithOptions,
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
 		(req, res) => {
-			res.statusCode = 403;
-			res.end(`
-			PUT operation not supported on /partners
-		`);
+			res
+				.status(403)
+				.end(`${req.method} opteration not supported on /partners`);
 		},
 	)
-
 	.delete(
+		cors.corsWithOptions,
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.deleteMany()
 				.then((response) => {
-					console.log('Partners deleted');
 					res.statusCode = 200;
 					res.setHeader('Content-Type', 'application/json');
 					res.json(response);
@@ -58,28 +58,30 @@ partnerRouter
 
 partnerRouter
 	.route('/:partnerId')
-	.get((req, res, next) => {
+	.options(cors.corsWithOptions, (req, res) => res.sendStatus(200))
+	.get(cors.cors, (req, res, next) => {
 		Partner.findById(req.params.partnerId)
 			.then((partner) => {
-				console.log('partner retrieved');
 				res.statusCode = 200;
 				res.setHeader('Content-Type', 'application/json');
 				res.json(partner);
 			})
 			.catch((err) => next(err));
 	})
-
 	.post(
+		cors.corsWithOptions,
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
 		(req, res) => {
-			res.status(403).end(`
-			POST operation not supported on ${req.params.partnerId}
-			`);
+			res
+				.status(403)
+				.end(
+					`${req.method} operation not supported on /partners/${req.params.partnerId}`,
+				);
 		},
 	)
-
 	.put(
+		cors.corsWithOptions,
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
 		(req, res, next) => {
@@ -88,12 +90,9 @@ partnerRouter
 				{
 					$set: req.body,
 				},
-				{
-					new: true,
-				},
+				{ new: true },
 			)
 				.then((partner) => {
-					console.log('partner updated');
 					res.statusCode = 200;
 					res.setHeader('Content-Type', 'application/json');
 					res.json(partner);
@@ -101,17 +100,13 @@ partnerRouter
 				.catch((err) => next(err));
 		},
 	)
-
 	.delete(
+		cors.corsWithOptions,
 		authenticate.verifyUser,
 		authenticate.verifyAdmin,
 		(req, res, next) => {
 			Partner.findByIdAndDelete(req.params.partnerId)
 				.then((response) => {
-					console.log(
-						`deleted partner ${req.params.partnerId}`,
-						response,
-					);
 					res.statusCode = 200;
 					res.setHeader('Content-Type', 'application/json');
 					res.json(response);
